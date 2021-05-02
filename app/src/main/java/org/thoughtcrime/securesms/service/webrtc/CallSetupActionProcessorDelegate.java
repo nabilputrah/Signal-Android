@@ -54,9 +54,6 @@ public class CallSetupActionProcessorDelegate extends WebRtcActionProcessor {
                                .changeCallInfoState()
                                .callState(WebRtcViewModel.State.CALL_CONNECTED)
                                .callConnectedTime(System.currentTimeMillis())
-                               .commit()
-                               .changeLocalDeviceState()
-                               .wantsBluetooth(true)
                                .build();
 
     webRtcInteractor.setCallInProgressNotification(TYPE_ESTABLISHED, activePeer);

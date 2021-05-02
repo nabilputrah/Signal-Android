@@ -342,6 +342,20 @@
         <item>30</item>
     </string-array>
 
+    <string-array name="pref_message_color_sent_entries">
+        <item>@string/arrays__red</item>
+        <item>@string/arrays__yellow</item>
+        <item>@string/arrays__green</item>
+        <item>@string/arrays__blue</item>
+    </string-array>
+
+    <string-array name="pref_message_color_sent_values">
+        <item>#ff0000</item>
+        <item>#ffff00</item>
+        <item>#00ff00</item>
+        <item>#0000ff</item>
+    </string-array>
+
     <string-array name="pref_notification_priority_entries">
         <item>@string/arrays__default</item>
         <item>@string/arrays__high</item>

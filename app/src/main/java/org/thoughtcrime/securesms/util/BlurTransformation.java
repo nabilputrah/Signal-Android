@@ -41,9 +41,7 @@ public final class BlurTransformation extends BitmapTransformation {
     Matrix scaleMatrix = new Matrix();
     scaleMatrix.setScale(bitmapScaleFactor, bitmapScaleFactor);
 
-    int                 targetWidth   = Math.min(outWidth, toTransform.getWidth());
-    int                 targetHeight  = Math.min(outHeight, toTransform.getHeight());
-    Bitmap              blurredBitmap = Bitmap.createBitmap(toTransform, 0, 0, targetWidth, targetHeight, scaleMatrix, true);
+    Bitmap              blurredBitmap = Bitmap.createBitmap(toTransform, 0, 0, outWidth, outHeight, scaleMatrix, true);
     Allocation          input         = Allocation.createFromBitmap(rs, blurredBitmap, Allocation.MipmapControl.MIPMAP_FULL, Allocation.USAGE_SHARED);
     Allocation          output        = Allocation.createTyped(rs, input.getType());
     ScriptIntrinsicBlur script        = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));

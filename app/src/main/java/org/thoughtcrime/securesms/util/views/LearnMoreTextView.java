@@ -17,7 +17,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 
 public class LearnMoreTextView extends AppCompatTextView {
@@ -69,10 +68,6 @@ public class LearnMoreTextView extends AppCompatTextView {
     setTextInternal(baseText, visible ? BufferType.SPANNABLE : BufferType.NORMAL);
   }
 
-  public void setLink(@NonNull String url) {
-    setOnLinkClickListener(new OpenUrlOnClickListener(url));
-  }
-
   private void setLinkTextInternal(@StringRes int linkText) {
     ClickableSpan clickable = new ClickableSpan() {
       @Override
@@ -102,20 +97,6 @@ public class LearnMoreTextView extends AppCompatTextView {
       super.setText(builder, BufferType.SPANNABLE);
     } else {
       super.setText(text, type);
-    }
-  }
-
-  private static class OpenUrlOnClickListener implements OnClickListener {
-
-    private final String url;
-
-    public OpenUrlOnClickListener(@NonNull String url) {
-      this.url = url;
-    }
-
-    @Override
-    public void onClick(View v) {
-      CommunicationActions.openBrowserLink(v.getContext(), url);
     }
   }
 }

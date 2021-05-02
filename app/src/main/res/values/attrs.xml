@@ -173,7 +173,6 @@
         <attr name="conversationThumbnail_maxWidth" format="dimension" />
         <attr name="conversationThumbnail_minHeight" format="dimension" />
         <attr name="conversationThumbnail_maxHeight" format="dimension" />
-        <attr name="conversationThumbnail_gifWidth" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="TypingIndicatorView">
@@ -272,10 +271,5 @@
 
     <declare-styleable name="WarningTextView">
         <attr name="warning_text_color" format="color|reference" />
-    </declare-styleable>
-
-    <declare-styleable name="MoneyView">
-        <attr name="always_show_sign" format="boolean" />
-        <attr name="money" format="string" />
     </declare-styleable>
 </resources>

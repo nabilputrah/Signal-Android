@@ -51,7 +51,7 @@ public class PinRestoreViewModel extends ViewModel {
         switch (result.getResult()) {
           case SUCCESS:
             SignalStore.pinValues().setKeyboardType(pinKeyboardType);
-            SignalStore.storageService().setNeedsAccountRestore(false);
+            SignalStore.storageServiceValues().setNeedsAccountRestore(false);
             event.postValue(Event.SUCCESS);
             break;
           case LOCKED:

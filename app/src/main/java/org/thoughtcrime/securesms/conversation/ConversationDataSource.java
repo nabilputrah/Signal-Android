@@ -9,11 +9,9 @@ import com.annimon.stream.Stream;
 
 import org.signal.core.util.logging.Log;
 import org.signal.paging.PagedDataSource;
-import org.thoughtcrime.securesms.conversation.ConversationData.MessageRequestData;
 import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationMessageFactory;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
-import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord;
 import org.thoughtcrime.securesms.database.model.Mention;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.util.Stopwatch;
@@ -32,20 +30,18 @@ class ConversationDataSource implements PagedDataSource<ConversationMessage> {
 
   private static final String TAG = Log.tag(ConversationDataSource.class);
 
-  private final Context            context;
-  private final long               threadId;
-  private final MessageRequestData messageRequestData;
+  private final Context             context;
+  private final long                threadId;
 
-  ConversationDataSource(@NonNull Context context, long threadId, @NonNull MessageRequestData messageRequestData) {
-    this.context            = context;
-    this.threadId           = threadId;
-    this.messageRequestData = messageRequestData;
+  ConversationDataSource(@NonNull Context context, long threadId) {
+    this.context  = context;
+    this.threadId = threadId;
   }
 
   @Override
   public int size() {
     long startTime = System.currentTimeMillis();
-    int  size      = DatabaseFactory.getMmsSmsDatabase(context).getConversationCount(threadId) + (messageRequestData.includeWarningUpdateMessage() ? 1 : 0);
+    int  size      = DatabaseFactory.getMmsSmsDatabase(context).getConversationCount(threadId);
 
     Log.d(TAG, "size() for thread " + threadId + ": " + (System.currentTimeMillis() - startTime) + " ms");
 
@@ -59,16 +55,12 @@ class ConversationDataSource implements PagedDataSource<ConversationMessage> {
     List<MessageRecord> records       = new ArrayList<>(length);
     MentionHelper       mentionHelper = new MentionHelper();
 
-    try (MmsSmsDatabase.Reader reader = MmsSmsDatabase.readerFor(db.getConversation(threadId, start, length))) {
+    try (MmsSmsDatabase.Reader reader = db.readerFor(db.getConversation(threadId, start, length))) {
       MessageRecord record;
       while ((record = reader.getNext()) != null && !cancellationSignal.isCanceled()) {
         records.add(record);
         mentionHelper.add(record);
       }
-    }
-
-    if (messageRequestData.includeWarningUpdateMessage() && (start + length >= size())) {
-      records.add(new InMemoryMessageRecord.NoGroupsInCommon(threadId, messageRequestData.isGroup()));
     }
 
     stopwatch.split("messages");

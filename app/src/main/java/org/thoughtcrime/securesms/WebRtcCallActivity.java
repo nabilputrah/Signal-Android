@@ -140,7 +140,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     Log.i(TAG, "onPause");
     super.onPause();
 
-    if (!isInPipMode() || isFinishing()) {
+    if (!isInPipMode()) {
       EventBus.getDefault().unregister(this);
     }
 
@@ -157,9 +157,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     Log.i(TAG, "onStop");
     super.onStop();
 
-    if (!isInPipMode() || isFinishing()) {
-      EventBus.getDefault().unregister(this);
-    }
+    EventBus.getDefault().unregister(this);
 
     if (!viewModel.isCallStarting()) {
       CallParticipantsState state = viewModel.getCallParticipantsState().getValue();
@@ -167,12 +165,6 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
         ApplicationDependencies.getSignalCallManager().cancelPreJoin();
       }
     }
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    EventBus.getDefault().unregister(this);
   }
 
   @Override

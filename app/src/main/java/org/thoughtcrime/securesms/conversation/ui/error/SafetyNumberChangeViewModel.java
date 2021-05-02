@@ -22,8 +22,6 @@ public final class SafetyNumberChangeViewModel extends ViewModel {
   private final SafetyNumberChangeRepository             safetyNumberChangeRepository;
   private final MutableLiveData<Collection<RecipientId>> recipientIds;
   private final LiveData<SafetyNumberChangeState>        safetyNumberChangeState;
-  private final LiveData<List<ChangedRecipient>>         changedRecipients;
-  private final LiveData<Boolean>                        trustOrVerifyReady;
 
   private SafetyNumberChangeViewModel(@NonNull List<RecipientId> recipientIds,
                                       @Nullable Long messageId,
@@ -33,16 +31,10 @@ public final class SafetyNumberChangeViewModel extends ViewModel {
     this.safetyNumberChangeRepository = safetyNumberChangeRepository;
     this.recipientIds                 = new MutableLiveData<>(recipientIds);
     this.safetyNumberChangeState      = LiveDataUtil.mapAsync(this.recipientIds, ids -> this.safetyNumberChangeRepository.getSafetyNumberChangeState(ids, messageId, messageType));
-    this.changedRecipients            = Transformations.map(safetyNumberChangeState, SafetyNumberChangeState::getChangedRecipients);
-    this.trustOrVerifyReady           = Transformations.map(safetyNumberChangeState, Objects::nonNull);
   }
 
   @NonNull LiveData<List<ChangedRecipient>> getChangedRecipients() {
-    return changedRecipients;
-  }
-
-  @NonNull LiveData<Boolean> getTrustOrVerifyReady() {
-    return trustOrVerifyReady;
+    return Transformations.map(safetyNumberChangeState, SafetyNumberChangeState::getChangedRecipients);
   }
 
   @NonNull LiveData<TrustAndVerifyResult> trustOrVerifyChangedRecipients() {

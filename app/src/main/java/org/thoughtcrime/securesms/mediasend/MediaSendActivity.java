@@ -475,7 +475,6 @@ public class MediaSendActivity extends PassphraseRequiredActivity implements Med
                          length,
                          0,
                          false,
-                         false,
                          Optional.of(Media.ALL_MEDIA_BUCKET_ID),
                          Optional.absent(),
                          Optional.absent());

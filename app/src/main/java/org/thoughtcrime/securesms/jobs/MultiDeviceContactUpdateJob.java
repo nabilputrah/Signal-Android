@@ -244,8 +244,8 @@ public class MultiDeviceContactUpdateJob extends BaseJob {
 
   @Override
   public boolean onShouldRetry(@NonNull Exception exception) {
-    return exception instanceof PushNetworkException ||
-           exception instanceof NetworkException;
+    if (exception instanceof PushNetworkException) return true;
+    return false;
   }
 
   @Override

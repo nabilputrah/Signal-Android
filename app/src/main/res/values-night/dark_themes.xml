@@ -17,6 +17,4 @@
     <style name="Signal.DayNight.Registration" parent="TextSecure.DarkRegistrationTheme" />
 
     <style name="Signal.DayNight.WallpaperCropper" parent="Theme.Signal.WallpaperCropper" />
-
-    <style name="Signal.DayNight.BottomSheet.Rounded" parent="Theme.Signal.RoundedBottomSheet" />
 </resources>

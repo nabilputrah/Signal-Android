@@ -41,29 +41,28 @@ public class DatabaseFactory {
 
   private static volatile DatabaseFactory instance;
 
-  private final SQLCipherOpenHelper      databaseHelper;
-  private final SmsDatabase              sms;
-  private final MmsDatabase              mms;
-  private final AttachmentDatabase       attachments;
-  private final MediaDatabase            media;
-  private final ThreadDatabase           thread;
-  private final MmsSmsDatabase           mmsSmsDatabase;
-  private final IdentityDatabase         identityDatabase;
-  private final DraftDatabase            draftDatabase;
-  private final PushDatabase             pushDatabase;
-  private final GroupDatabase            groupDatabase;
-  private final RecipientDatabase        recipientDatabase;
-  private final ContactsDatabase         contactsDatabase;
-  private final GroupReceiptDatabase     groupReceiptDatabase;
-  private final OneTimePreKeyDatabase    preKeyDatabase;
-  private final SignedPreKeyDatabase     signedPreKeyDatabase;
-  private final SessionDatabase          sessionDatabase;
-  private final SearchDatabase           searchDatabase;
-  private final StickerDatabase          stickerDatabase;
-  private final UnknownStorageIdDatabase storageIdDatabase      ;
-  private final RemappedRecordsDatabase  remappedRecordsDatabase;
-  private final MentionDatabase          mentionDatabase;
-  private final PaymentDatabase          paymentDatabase;
+  private final SQLCipherOpenHelper     databaseHelper;
+  private final SmsDatabase             sms;
+  private final MmsDatabase             mms;
+  private final AttachmentDatabase      attachments;
+  private final MediaDatabase           media;
+  private final ThreadDatabase          thread;
+  private final MmsSmsDatabase          mmsSmsDatabase;
+  private final IdentityDatabase        identityDatabase;
+  private final DraftDatabase           draftDatabase;
+  private final PushDatabase            pushDatabase;
+  private final GroupDatabase           groupDatabase;
+  private final RecipientDatabase       recipientDatabase;
+  private final ContactsDatabase        contactsDatabase;
+  private final GroupReceiptDatabase    groupReceiptDatabase;
+  private final OneTimePreKeyDatabase   preKeyDatabase;
+  private final SignedPreKeyDatabase    signedPreKeyDatabase;
+  private final SessionDatabase         sessionDatabase;
+  private final SearchDatabase          searchDatabase;
+  private final StickerDatabase         stickerDatabase;
+  private final StorageKeyDatabase      storageKeyDatabase;
+  private final RemappedRecordsDatabase remappedRecordsDatabase;
+  private final MentionDatabase         mentionDatabase;
 
   public static DatabaseFactory getInstance(Context context) {
     if (instance == null) {
@@ -154,8 +153,8 @@ public class DatabaseFactory {
     return getInstance(context).stickerDatabase;
   }
 
-  public static UnknownStorageIdDatabase getUnknownStorageIdDatabase(Context context) {
-    return getInstance(context).storageIdDatabase;
+  public static StorageKeyDatabase getStorageKeyDatabase(Context context) {
+    return getInstance(context).storageKeyDatabase;
   }
 
   static RemappedRecordsDatabase getRemappedRecordsDatabase(Context context) {
@@ -164,10 +163,6 @@ public class DatabaseFactory {
 
   public static MentionDatabase getMentionDatabase(Context context) {
     return getInstance(context).mentionDatabase;
-  }
-
-  public static PaymentDatabase getPaymentDatabase(Context context) {
-    return getInstance(context).paymentDatabase;
   }
 
   public static SQLiteDatabase getBackupDatabase(Context context) {
@@ -219,10 +214,9 @@ public class DatabaseFactory {
     this.sessionDatabase         = new SessionDatabase(context, databaseHelper);
     this.searchDatabase          = new SearchDatabase(context, databaseHelper);
     this.stickerDatabase         = new StickerDatabase(context, databaseHelper, attachmentSecret);
-    this.storageIdDatabase       = new UnknownStorageIdDatabase(context, databaseHelper);
+    this.storageKeyDatabase      = new StorageKeyDatabase(context, databaseHelper);
     this.remappedRecordsDatabase = new RemappedRecordsDatabase(context, databaseHelper);
     this.mentionDatabase         = new MentionDatabase(context, databaseHelper);
-    this.paymentDatabase         = new PaymentDatabase(context, databaseHelper);
   }
 
   public void onApplicationLevelUpgrade(@NonNull Context context, @NonNull MasterSecret masterSecret,

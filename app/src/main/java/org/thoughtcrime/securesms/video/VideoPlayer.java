@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -61,13 +60,12 @@ public class VideoPlayer extends FrameLayout {
   private final PlayerView        exoView;
   private final PlayerControlView exoControls;
 
-  private SimpleExoPlayer                     exoPlayer;
-  private Window                              window;
-  private PlayerStateCallback                 playerStateCallback;
-  private PlayerPositionDiscontinuityCallback playerPositionDiscontinuityCallback;
-  private PlayerCallback                      playerCallback;
-  private boolean                             clipped;
-  private long                                clippedStartUs;
+  private SimpleExoPlayer     exoPlayer;
+  private Window              window;
+  private PlayerStateCallback playerStateCallback;
+  private PlayerCallback      playerCallback;
+  private boolean             clipped;
+  private long                clippedStartUs;
 
   public VideoPlayer(Context context) {
     this(context, null);
@@ -96,27 +94,25 @@ public class VideoPlayer extends FrameLayout {
     TrackSelector           trackSelector              = new DefaultTrackSelector(videoTrackSelectionFactory);
     LoadControl             loadControl                = new DefaultLoadControl();
 
-    if (exoPlayer == null) {
-      exoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
-      exoPlayer.addListener(new ExoPlayerListener(this, window, playerStateCallback, playerPositionDiscontinuityCallback));
-      exoPlayer.addListener(new Player.EventListener() {
-        @Override
-        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-          if (playerCallback != null) {
-            switch (playbackState) {
-              case Player.STATE_READY:
-                if (playWhenReady) playerCallback.onPlaying();
-                break;
-              case Player.STATE_ENDED:
-                playerCallback.onStopped();
-                break;
-            }
+    exoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
+    exoPlayer.addListener(new ExoPlayerListener(window, playerStateCallback));
+    exoPlayer.addListener(new Player.DefaultEventListener() {
+      @Override
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if (playerCallback != null) {
+          switch (playbackState) {
+            case Player.STATE_READY:
+              if (playWhenReady) playerCallback.onPlaying();
+              break;
+            case Player.STATE_ENDED:
+              playerCallback.onStopped();
+              break;
           }
         }
-      });
-      exoView.setPlayer(exoPlayer);
-      exoControls.setPlayer(exoPlayer);
-    }
+      }
+    });
+    exoView.setPlayer(exoPlayer);
+    exoControls.setPlayer(exoPlayer);
 
     DefaultDataSourceFactory    defaultDataSourceFactory    = new DefaultDataSourceFactory(context, "GenericUserAgent", null);
     AttachmentDataSourceFactory attachmentDataSourceFactory = new AttachmentDataSourceFactory(context, defaultDataSourceFactory, null);
@@ -130,18 +126,8 @@ public class VideoPlayer extends FrameLayout {
     exoPlayer.setPlayWhenReady(autoplay);
   }
 
-  public boolean isInitialized() {
-    return exoPlayer != null;
-  }
-
-  public void setResizeMode(@AspectRatioFrameLayout.ResizeMode int resizeMode) {
-    exoView.setResizeMode(resizeMode);
-  }
-
   public void pause() {
-    if (this.exoPlayer != null) {
-      this.exoPlayer.setPlayWhenReady(false);
-    }
+    this.exoPlayer.setPlayWhenReady(false);
   }
 
   public void hideControls() {
@@ -160,7 +146,6 @@ public class VideoPlayer extends FrameLayout {
   public void cleanup() {
     if (this.exoPlayer != null) {
       this.exoPlayer.release();
-      this.exoPlayer = null;
     }
   }
 
@@ -211,7 +196,7 @@ public class VideoPlayer extends FrameLayout {
     if (exoPlayer != null && createMediaSource != null) {
       if (clipped) {
         exoPlayer.prepare(createMediaSource.create());
-        clipped        = false;
+        clipped = false;
         clippedStartUs = 0;
       }
       exoPlayer.setPlayWhenReady(playWhenReady);
@@ -230,10 +215,6 @@ public class VideoPlayer extends FrameLayout {
     this.playerCallback = playerCallback;
   }
 
-  public void setPlayerPositionDiscontinuityCallback(@NonNull PlayerPositionDiscontinuityCallback playerPositionDiscontinuityCallback) {
-    this.playerPositionDiscontinuityCallback = playerPositionDiscontinuityCallback;
-  }
-
   /**
    * Resumes a paused video, or restarts if at end of video.
    */
@@ -246,52 +227,33 @@ public class VideoPlayer extends FrameLayout {
     }
   }
 
-  private static class ExoPlayerListener implements Player.EventListener {
-    private final VideoPlayer                         videoPlayer;
-    private final Window                              window;
-    private final PlayerStateCallback                 playerStateCallback;
-    private final PlayerPositionDiscontinuityCallback playerPositionDiscontinuityCallback;
+  private static class ExoPlayerListener extends Player.DefaultEventListener {
+    private final Window              window;
+    private final PlayerStateCallback playerStateCallback;
 
-    ExoPlayerListener(@NonNull VideoPlayer videoPlayer,
-                      @Nullable Window window,
-                      @Nullable PlayerStateCallback playerStateCallback,
-                      @Nullable PlayerPositionDiscontinuityCallback playerPositionDiscontinuityCallback)
-    {
-      this.videoPlayer                         = videoPlayer;
-      this.window                              = window;
-      this.playerStateCallback                 = playerStateCallback;
-      this.playerPositionDiscontinuityCallback = playerPositionDiscontinuityCallback;
+    ExoPlayerListener(Window window, PlayerStateCallback playerStateCallback) {
+      this.window              = window;
+      this.playerStateCallback = playerStateCallback;
     }
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      switch (playbackState) {
+      switch(playbackState) {
         case Player.STATE_IDLE:
         case Player.STATE_BUFFERING:
         case Player.STATE_ENDED:
-          if (window != null) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-          }
+          window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
           break;
         case Player.STATE_READY:
-          if (window != null) {
-            if (playWhenReady) {
-              window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            } else {
-              window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            }
+          if (playWhenReady) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+          } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
           }
           notifyPlayerReady();
           break;
         default:
           break;
-      }
-    }
-
-    @Override
-    public void onPositionDiscontinuity(int reason) {
-      if (playerPositionDiscontinuityCallback != null) {
-        playerPositionDiscontinuityCallback.onPositionDiscontinuity(videoPlayer, reason);
       }
     }
 
@@ -302,10 +264,6 @@ public class VideoPlayer extends FrameLayout {
 
   public interface PlayerStateCallback {
     void onPlayerReady();
-  }
-
-  public interface PlayerPositionDiscontinuityCallback {
-    void onPositionDiscontinuity(@NonNull VideoPlayer player, int reason);
   }
 
   public interface PlayerCallback {

@@ -33,19 +33,11 @@ public final class StorageSyncModels {
     return localToRemoteRecord(settings, settings.getStorageId());
   }
 
-  public static @NonNull SignalStorageRecord localToRemoteRecord(@NonNull RecipientSettings settings, @NonNull GroupMasterKey groupMasterKey) {
-    if (settings.getStorageId() == null) {
-      throw new AssertionError("Must have a storage key!");
-    }
-
-    return SignalStorageRecord.forGroupV2(localToRemoteGroupV2(settings, settings.getStorageId(), groupMasterKey));
-  }
-
   public static @NonNull SignalStorageRecord localToRemoteRecord(@NonNull RecipientSettings settings, @NonNull byte[] rawStorageId) {
     switch (settings.getGroupType()) {
       case NONE:      return SignalStorageRecord.forContact(localToRemoteContact(settings, rawStorageId));
       case SIGNAL_V1: return SignalStorageRecord.forGroupV1(localToRemoteGroupV1(settings, rawStorageId));
-      case SIGNAL_V2: return SignalStorageRecord.forGroupV2(localToRemoteGroupV2(settings, rawStorageId, settings.getSyncExtras().getGroupMasterKey()));
+      case SIGNAL_V2: return SignalStorageRecord.forGroupV2(localToRemoteGroupV2(settings, rawStorageId));
       default:        throw new AssertionError("Unsupported type!");
     }
   }
@@ -102,7 +94,6 @@ public final class StorageSyncModels {
                                   .setIdentityState(localToRemoteIdentityState(recipient.getSyncExtras().getIdentityStatus()))
                                   .setArchived(recipient.getSyncExtras().isArchived())
                                   .setForcedUnread(recipient.getSyncExtras().isForcedUnread())
-                                  .setMuteUntil(recipient.getMuteUntil())
                                   .build();
   }
 
@@ -123,11 +114,10 @@ public final class StorageSyncModels {
                                   .setProfileSharingEnabled(recipient.isProfileSharing())
                                   .setArchived(recipient.getSyncExtras().isArchived())
                                   .setForcedUnread(recipient.getSyncExtras().isForcedUnread())
-                                  .setMuteUntil(recipient.getMuteUntil())
                                   .build();
   }
 
-  private static @NonNull SignalGroupV2Record localToRemoteGroupV2(@NonNull RecipientSettings recipient, byte[] rawStorageId, @NonNull GroupMasterKey groupMasterKey) {
+  private static @NonNull SignalGroupV2Record localToRemoteGroupV2(@NonNull RecipientSettings recipient, byte[] rawStorageId) {
     GroupId groupId = recipient.getGroupId();
 
     if (groupId == null) {
@@ -137,6 +127,8 @@ public final class StorageSyncModels {
     if (!groupId.isV2()) {
       throw new AssertionError("Group is not V2");
     }
+
+    GroupMasterKey groupMasterKey = recipient.getSyncExtras().getGroupMasterKey();
 
     if (groupMasterKey == null) {
       throw new AssertionError("Group master key not on recipient record");
@@ -148,7 +140,6 @@ public final class StorageSyncModels {
                                   .setProfileSharingEnabled(recipient.isProfileSharing())
                                   .setArchived(recipient.getSyncExtras().isArchived())
                                   .setForcedUnread(recipient.getSyncExtras().isForcedUnread())
-                                  .setMuteUntil(recipient.getMuteUntil())
                                   .build();
   }
 

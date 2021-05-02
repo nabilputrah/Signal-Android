@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.thoughtcrime.securesms.giph.mp4.GiphyMp4DisplayUpdater;
-import org.thoughtcrime.securesms.giph.mp4.GiphyMp4Playable;
 import org.thoughtcrime.securesms.util.AccessibilityUtil;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 
@@ -30,17 +28,14 @@ class ConversationItemSwipeCallback extends ItemTouchHelper.SimpleCallback {
   private final SwipeAvailabilityProvider     swipeAvailabilityProvider;
   private final ConversationItemTouchListener itemTouchListener;
   private final OnSwipeListener               onSwipeListener;
-  private final GiphyMp4DisplayUpdater        giphyMp4DisplayUpdater;
 
   ConversationItemSwipeCallback(@NonNull SwipeAvailabilityProvider swipeAvailabilityProvider,
-                                @NonNull OnSwipeListener onSwipeListener,
-                                @NonNull GiphyMp4DisplayUpdater giphyMp4DisplayUpdater)
+                                @NonNull OnSwipeListener onSwipeListener)
   {
     super(0, ItemTouchHelper.END);
     this.itemTouchListener          = new ConversationItemTouchListener(this::updateLatestDownCoordinate);
     this.swipeAvailabilityProvider  = swipeAvailabilityProvider;
     this.onSwipeListener            = onSwipeListener;
-    this.giphyMp4DisplayUpdater     = giphyMp4DisplayUpdater;
     this.shouldTriggerSwipeFeedback = true;
     this.canTriggerSwipe            = true;
   }
@@ -93,25 +88,17 @@ class ConversationItemSwipeCallback extends ItemTouchHelper.SimpleCallback {
 
     if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && isCorrectSwipeDir) {
       ConversationSwipeAnimationHelper.update((ConversationItem) viewHolder.itemView, Math.abs(dx), sign);
-      updateVideoPlayer(recyclerView, viewHolder);
       handleSwipeFeedback((ConversationItem) viewHolder.itemView, Math.abs(dx));
       if (canTriggerSwipe) {
         setTouchListener(recyclerView, viewHolder, Math.abs(dx));
       }
     } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE || dx == 0) {
       ConversationSwipeAnimationHelper.update((ConversationItem) viewHolder.itemView, 0, 1);
-      updateVideoPlayer(recyclerView, viewHolder);
     }
 
     if (dx == 0) {
       shouldTriggerSwipeFeedback = true;
       canTriggerSwipe            = true;
-    }
-  }
-
-  private void updateVideoPlayer(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-    if (viewHolder instanceof GiphyMp4Playable) {
-      giphyMp4DisplayUpdater.updateDisplay(recyclerView, (GiphyMp4Playable) viewHolder);
     }
   }
 
@@ -147,7 +134,7 @@ class ConversationItemSwipeCallback extends ItemTouchHelper.SimpleCallback {
         case MotionEvent.ACTION_CANCEL:
           swipeBack = true;
           shouldTriggerSwipeFeedback = false;
-          resetProgressIfAnimationsDisabled(recyclerView, viewHolder);
+          resetProgressIfAnimationsDisabled(viewHolder);
           break;
       }
       return false;
@@ -169,12 +156,11 @@ class ConversationItemSwipeCallback extends ItemTouchHelper.SimpleCallback {
     recyclerView.cancelPendingInputEvents();
   }
 
-  private void resetProgressIfAnimationsDisabled(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+  private static void resetProgressIfAnimationsDisabled(RecyclerView.ViewHolder viewHolder) {
     if (AccessibilityUtil.areAnimationsDisabled(viewHolder.itemView.getContext())) {
       ConversationSwipeAnimationHelper.update((ConversationItem) viewHolder.itemView,
                                               0f,
                                               getSignFromDirection(viewHolder.itemView));
-      updateVideoPlayer(recyclerView, viewHolder);
     }
   }
 

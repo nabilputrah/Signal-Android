@@ -27,7 +27,6 @@ public final class VideoTrimTransform implements MediaTransform {
                      media.getSize(),
                      media.getDuration(),
                      media.isBorderless(),
-                     media.isVideoGif(),
                      media.getBucketId(),
                      media.getCaption(),
                      Optional.of(new AttachmentDatabase.TransformProperties(false, data.durationEdited, data.startTimeUs, data.endTimeUs)));

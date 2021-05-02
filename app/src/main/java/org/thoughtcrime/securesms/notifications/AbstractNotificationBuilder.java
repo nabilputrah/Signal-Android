@@ -24,7 +24,7 @@ public abstract class AbstractNotificationBuilder extends NotificationCompat.Bui
   @SuppressWarnings("unused")
   private static final String TAG = Log.tag(AbstractNotificationBuilder.class);
 
-  public static final int MAX_DISPLAY_LENGTH = 500;
+  private static final int MAX_DISPLAY_LENGTH = 500;
 
   protected Context                       context;
   protected NotificationPrivacyPreference privacy;

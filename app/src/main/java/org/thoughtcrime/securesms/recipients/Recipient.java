@@ -32,7 +32,6 @@ import org.thoughtcrime.securesms.database.RecipientDatabase.MentionSetting;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RegisteredState;
 import org.thoughtcrime.securesms.database.RecipientDatabase.UnidentifiedAccessMode;
 import org.thoughtcrime.securesms.database.RecipientDatabase.VibrateState;
-import org.thoughtcrime.securesms.database.model.databaseprotos.RecipientExtras;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
@@ -112,8 +111,7 @@ public class Recipient {
   private final String                 aboutEmoji;
   private final ProfileName            systemProfileName;
   private final String                 systemContactName;
-  private final Optional<Extras>       extras;
-  private final boolean                hasGroupsInCommon;
+
 
   /**
    * Returns a {@link LiveRecipient}, which contains a {@link Recipient} that may or may not be
@@ -351,8 +349,6 @@ public class Recipient {
     this.aboutEmoji                  = null;
     this.systemProfileName           = ProfileName.EMPTY;
     this.systemContactName           = null;
-    this.extras                      = Optional.absent();
-    this.hasGroupsInCommon           = false;
   }
 
   public Recipient(@NonNull RecipientId id, @NonNull RecipientDetails details, boolean resolved) {
@@ -400,8 +396,6 @@ public class Recipient {
     this.aboutEmoji                  = details.aboutEmoji;
     this.systemProfileName           = details.systemProfileName;
     this.systemContactName           = details.systemContactName;
-    this.extras                      = details.extras;
-    this.hasGroupsInCommon           = details.hasGroupsInCommon;
   }
 
   public @NonNull RecipientId getId() {
@@ -776,14 +770,12 @@ public class Recipient {
   }
 
   public @NonNull FallbackContactPhoto getFallbackContactPhoto(@NonNull FallbackPhotoProvider fallbackPhotoProvider) {
-    if      (isSelf)                                return fallbackPhotoProvider.getPhotoForLocalNumber();
-    else if (isResolving())                         return fallbackPhotoProvider.getPhotoForResolvingRecipient();
-    else if (isGroupInternal())                     return fallbackPhotoProvider.getPhotoForGroup();
-    else if (isGroup())                             return fallbackPhotoProvider.getPhotoForGroup();
-    else if (!TextUtils.isEmpty(groupName))         return fallbackPhotoProvider.getPhotoForRecipientWithName(groupName);
-    else if (!TextUtils.isEmpty(systemContactName)) return fallbackPhotoProvider.getPhotoForRecipientWithName(systemContactName);
-    else if (!signalProfileName.isEmpty())          return fallbackPhotoProvider.getPhotoForRecipientWithName(signalProfileName.toString());
-    else                                            return fallbackPhotoProvider.getPhotoForRecipientWithoutName();
+    if      (isSelf)                        return fallbackPhotoProvider.getPhotoForLocalNumber();
+    else if (isResolving())                 return fallbackPhotoProvider.getPhotoForResolvingRecipient();
+    else if (isGroupInternal())             return fallbackPhotoProvider.getPhotoForGroup();
+    else if (isGroup())                     return fallbackPhotoProvider.getPhotoForGroup();
+    else if (!TextUtils.isEmpty(groupName)) return fallbackPhotoProvider.getPhotoForRecipientWithName(groupName);
+    else                                    return fallbackPhotoProvider.getPhotoForRecipientWithoutName();
   }
 
   public @Nullable ContactPhoto getContactPhoto() {
@@ -935,18 +927,6 @@ public class Recipient {
     }
   }
 
-  public boolean shouldBlurAvatar() {
-    boolean showOverride = false;
-    if (extras.isPresent()) {
-      showOverride = extras.get().manuallyShownAvatar();
-    }
-    return !showOverride && !isSelf() && !isProfileSharing() && !isSystemContact() && !hasGroupsInCommon && isRegistered();
-  }
-
-  public boolean hasGroupsInCommon() {
-    return hasGroupsInCommon;
-  }
-
   /**
    * If this recipient is missing crucial data, this will return a populated copy. Otherwise it
    * returns itself.
@@ -1021,39 +1001,6 @@ public class Recipient {
     }
   }
 
-  public static final class Extras {
-    private final RecipientExtras recipientExtras;
-
-    public static @Nullable Extras from(@Nullable RecipientExtras recipientExtras) {
-      if (recipientExtras != null) {
-        return new Extras(recipientExtras);
-      } else {
-        return null;
-      }
-    }
-
-    private Extras(@NonNull RecipientExtras extras) {
-      this.recipientExtras = extras;
-    }
-
-    public boolean manuallyShownAvatar() {
-      return recipientExtras.getManuallyShownAvatar();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      final Extras that = (Extras) o;
-      return manuallyShownAvatar() == that.manuallyShownAvatar();
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(manuallyShownAvatar());
-    }
-  }
-
   public boolean hasSameContent(@NonNull Recipient other) {
     return Objects.equals(id, other.id) &&
            resolving == other.resolving &&
@@ -1098,8 +1045,7 @@ public class Recipient {
            mentionSetting == other.mentionSetting &&
            Objects.equals(wallpaper, other.wallpaper) &&
            Objects.equals(about, other.about) &&
-           Objects.equals(aboutEmoji, other.aboutEmoji) &&
-           Objects.equals(extras, other.extras);
+           Objects.equals(aboutEmoji, other.aboutEmoji);
   }
 
   private static boolean allContentsAreTheSame(@NonNull List<Recipient> a, @NonNull List<Recipient> b) {

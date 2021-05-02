@@ -77,7 +77,7 @@ public final class SlideFactory {
         }
 
         Log.d(TAG, "remote slide with size " + fileSize + " took " + (System.currentTimeMillis() - start) + "ms");
-        return mediaType.createSlide(context, uri, fileName, mimeType, null, fileSize, width, height, false);
+        return mediaType.createSlide(context, uri, fileName, mimeType, null, fileSize, width, height);
       }
     } finally {
       if (cursor != null) cursor.close();
@@ -91,13 +91,11 @@ public final class SlideFactory {
     Long     mediaSize = null;
     String   fileName  = null;
     String   mimeType  = null;
-    boolean  gif       = false;
 
     if (PartAuthority.isLocalUri(uri)) {
       mediaSize = PartAuthority.getAttachmentSize(context, uri);
       fileName  = PartAuthority.getAttachmentFileName(context, uri);
       mimeType  = PartAuthority.getAttachmentContentType(context, uri);
-      gif       = PartAuthority.getAttachmentIsVideoGif(context, uri);
     }
 
     if (mediaSize == null) {
@@ -115,7 +113,7 @@ public final class SlideFactory {
     }
 
     Log.d(TAG, "local slide with size " + mediaSize + " took " + (System.currentTimeMillis() - start) + "ms");
-    return mediaType.createSlide(context, uri, fileName, mimeType, null, mediaSize, width, height, gif);
+    return mediaType.createSlide(context, uri, fileName, mimeType, null, mediaSize, width, height);
   }
 
   public enum MediaType {
@@ -141,8 +139,7 @@ public final class SlideFactory {
                                       @Nullable BlurHash blurHash,
                                                 long     dataSize,
                                                 int      width,
-                                                int      height,
-                                                boolean  gif)
+                                                int      height)
     {
       if (mimeType == null) {
         mimeType = "application/octet-stream";
@@ -152,7 +149,7 @@ public final class SlideFactory {
       case IMAGE:    return new ImageSlide(context, uri, dataSize, width, height, blurHash);
       case GIF:      return new GifSlide(context, uri, dataSize, width, height);
       case AUDIO:    return new AudioSlide(context, uri, dataSize, false);
-      case VIDEO:    return new VideoSlide(context, uri, dataSize, gif);
+      case VIDEO:    return new VideoSlide(context, uri, dataSize);
       case VCARD:
       case DOCUMENT: return new DocumentSlide(context, uri, mimeType, dataSize, fileName);
       default:       throw  new AssertionError("unrecognized enum");

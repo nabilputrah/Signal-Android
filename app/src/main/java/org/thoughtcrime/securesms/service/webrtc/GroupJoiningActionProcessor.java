@@ -86,9 +86,6 @@ public class GroupJoiningActionProcessor extends GroupActionProcessor {
                  .groupCallState(WebRtcViewModel.GroupCallState.CONNECTED_AND_JOINED)
                  .callConnectedTime(System.currentTimeMillis())
                  .commit()
-                 .changeLocalDeviceState()
-                 .wantsBluetooth(true)
-                 .commit()
                  .actionProcessor(new GroupConnectedActionProcessor(webRtcInteractor))
                  .build();
         } else if (device.getJoinState() == GroupCall.JoinState.JOINING) {

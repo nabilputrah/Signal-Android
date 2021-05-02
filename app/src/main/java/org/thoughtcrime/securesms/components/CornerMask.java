@@ -7,11 +7,9 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.drawable.shapes.RoundRectShape;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class CornerMask {
 
@@ -22,24 +20,19 @@ public class CornerMask {
   private final RectF   bounds     = new RectF();
 
   public CornerMask(@NonNull View view) {
-    this(view, null);
-  }
-
-  public CornerMask(@NonNull View view, @Nullable CornerMask toClone) {
     view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
     clearPaint.setColor(Color.BLACK);
     clearPaint.setStyle(Paint.Style.FILL);
     clearPaint.setAntiAlias(true);
     clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-
-    if (toClone != null) {
-      System.arraycopy(toClone.radii, 0, radii, 0, radii.length);
-    }
   }
 
   public void mask(Canvas canvas) {
-    bounds.set(canvas.getClipBounds());
+    bounds.left   = 0;
+    bounds.top    = 0;
+    bounds.right  = canvas.getWidth();
+    bounds.bottom = canvas.getHeight();
 
     corners.reset();
     corners.addRoundRect(bounds, radii, Path.Direction.CW);
@@ -78,9 +71,5 @@ public class CornerMask {
 
   public void setBottomLeftRadius(int radius) {
     radii[6] = radii[7] = radius;
-  }
-
-  public float[] getRadii() {
-    return radii;
   }
 }

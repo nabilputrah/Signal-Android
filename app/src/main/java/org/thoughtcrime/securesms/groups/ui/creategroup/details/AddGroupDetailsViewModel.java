@@ -63,9 +63,8 @@ public final class AddGroupDetailsViewModel extends ViewModel {
     });
 
     nonGv2CapableMembers = LiveDataUtil.mapAsync(membersToCheckGv2CapabilityOf, memberList -> repository.checkCapabilities(Stream.of(memberList).map(newGroupCandidate -> newGroupCandidate.getMember().getId()).toList()));
-    canSubmitForm        = LiveDataUtil.combineLatest(LiveDataUtil.combineLatest(isMms, isValidName, (mms, validName) -> mms || validName),
-                                                      nonGv2CapableMembers,
-                                                      (canSubmit, nonGv2) -> canSubmit && !(FeatureFlags.groupsV1ForcedMigration() && nonGv2.size() > 0));
+    canSubmitForm        = FeatureFlags.groupsV1ForcedMigration() ? LiveDataUtil.just(false)
+                                                                  : LiveDataUtil.combineLatest(isMms, isValidName, (mms, validName) -> mms || validName);
 
     repository.resolveMembers(recipientIds, initialMembers::postValue);
   }

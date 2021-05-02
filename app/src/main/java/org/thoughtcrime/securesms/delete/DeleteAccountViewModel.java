@@ -15,28 +15,24 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.payments.Balance;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.DefaultValueLiveData;
 import org.thoughtcrime.securesms.util.SingleLiveEvent;
-import org.whispersystems.libsignal.util.guava.Optional;
-import org.whispersystems.signalservice.api.payments.FormatterOptions;
-import org.whispersystems.signalservice.api.payments.Money;
+import org.whispersystems.signalservice.api.util.PhoneNumberFormatter;
 
 import java.util.List;
 
 public class DeleteAccountViewModel extends ViewModel {
 
-  private final DeleteAccountRepository           repository;
-  private final List<Country>                     allCountries;
-  private final LiveData<List<Country>>           filteredCountries;
-  private final MutableLiveData<String>           regionCode;
-  private final LiveData<String>                  countryDisplayName;
-  private final MutableLiveData<Long>             nationalNumber;
-  private final MutableLiveData<String>           query;
-  private final SingleLiveEvent<EventType>        events;
-  private final LiveData<Optional<String>>        walletBalance;
+  private final DeleteAccountRepository    repository;
+  private final List<Country>              allCountries;
+  private final LiveData<List<Country>>    filteredCountries;
+  private final MutableLiveData<String>    regionCode;
+  private final LiveData<String>           countryDisplayName;
+  private final MutableLiveData<Long>      nationalNumber;
+  private final MutableLiveData<String>    query;
+  private final SingleLiveEvent<EventType> events;
 
   public DeleteAccountViewModel(@NonNull DeleteAccountRepository repository) {
     this.repository         = repository;
@@ -47,12 +43,6 @@ public class DeleteAccountViewModel extends ViewModel {
     this.countryDisplayName = Transformations.map(regionCode, repository::getRegionDisplayName);
     this.filteredCountries  = Transformations.map(query, q -> Stream.of(allCountries).filter(country -> isMatch(q, country)).toList());
     this.events             = new SingleLiveEvent<>();
-    this.walletBalance      = Transformations.map(SignalStore.paymentsValues().liveMobileCoinBalance(),
-                                                  DeleteAccountViewModel::getFormattedWalletBalance);
-  }
-
-  @NonNull LiveData<Optional<String>> getWalletBalance() {
-    return walletBalance;
   }
 
   @NonNull LiveData<List<Country>> getFilteredCountries() {
@@ -135,15 +125,6 @@ public class DeleteAccountViewModel extends ViewModel {
         regionCode.setValue(phoneNumberRegion);
       }
     } catch (NumberParseException ignored) {
-    }
-  }
-
-  private static @NonNull Optional<String> getFormattedWalletBalance(@NonNull Balance balance) {
-    Money amount = balance.getFullAmount();
-    if (amount.isPositive()) {
-      return Optional.of(amount.toString(FormatterOptions.defaults()));
-    } else {
-      return Optional.absent();
     }
   }
 

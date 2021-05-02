@@ -72,7 +72,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import mobi.upod.timedurationpicker.TimeDurationPickerDialog;
-import mobi.upod.timedurationpicker.TimeDurationPicker;
 
 public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment {
 
@@ -187,10 +186,11 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
     long timeoutSeconds = TextSecurePreferences.getScreenLockTimeout(getContext());
     long hours          = TimeUnit.SECONDS.toHours(timeoutSeconds);
     long minutes        = TimeUnit.SECONDS.toMinutes(timeoutSeconds) - (TimeUnit.SECONDS.toHours(timeoutSeconds) * 60  );
+    long seconds        = TimeUnit.SECONDS.toSeconds(timeoutSeconds) - (TimeUnit.SECONDS.toMinutes(timeoutSeconds) * 60);
 
     findPreference(TextSecurePreferences.SCREEN_LOCK_TIMEOUT)
         .setSummary(timeoutSeconds <= 0 ? getString(R.string.AppProtectionPreferenceFragment_none) :
-                                          String.format(Locale.getDefault(), "%02d:%02d:00", hours, minutes));
+                                          String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds));
   }
 
   private void initializePhoneNumberPrivacyWhoCanSeeSummary() {
@@ -255,11 +255,15 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
     @Override
     public boolean onPreferenceClick(Preference preference) {
       new TimeDurationPickerDialog(getContext(), (view, duration) -> {
-        long timeoutSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
-        TextSecurePreferences.setScreenLockTimeout(getContext(), timeoutSeconds);
+        if (duration == 0) {
+          TextSecurePreferences.setScreenLockTimeout(getContext(), 0);
+        } else {
+          long timeoutSeconds = Math.max(TimeUnit.MILLISECONDS.toSeconds(duration), 60);
+          TextSecurePreferences.setScreenLockTimeout(getContext(), timeoutSeconds);
+        }
 
         initializeScreenLockTimeoutSummary();
-      }, 0, TimeDurationPicker.HH_MM).show();
+      }, 0).show();
 
       return true;
     }
@@ -395,7 +399,7 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
 
         initializePassphraseTimeoutSummary();
 
-      }, 0, TimeDurationPicker.HH_MM).show();
+      }, 0).show();
 
       return true;
     }

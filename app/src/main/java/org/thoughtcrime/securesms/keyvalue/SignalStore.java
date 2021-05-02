@@ -33,7 +33,6 @@ public final class SignalStore {
   private final PhoneNumberPrivacyValues phoneNumberPrivacyValues;
   private final OnboardingValues         onboardingValues;
   private final WallpaperValues          wallpaperValues;
-  private final PaymentsValues           paymentsValues;
   private final ProxyValues              proxyValues;
 
   private SignalStore() {
@@ -53,7 +52,6 @@ public final class SignalStore {
     this.phoneNumberPrivacyValues = new PhoneNumberPrivacyValues(store);
     this.onboardingValues         = new OnboardingValues(store);
     this.wallpaperValues          = new WallpaperValues(store);
-    this.paymentsValues           = new PaymentsValues(store);
     this.proxyValues              = new ProxyValues(store);
   }
 
@@ -62,7 +60,7 @@ public final class SignalStore {
     registrationValues().onFirstEverAppLaunch();
     pinValues().onFirstEverAppLaunch();
     remoteConfigValues().onFirstEverAppLaunch();
-    storageService().onFirstEverAppLaunch();
+    storageServiceValues().onFirstEverAppLaunch();
     uiHints().onFirstEverAppLaunch();
     tooltips().onFirstEverAppLaunch();
     misc().onFirstEverAppLaunch();
@@ -73,7 +71,6 @@ public final class SignalStore {
     phoneNumberPrivacy().onFirstEverAppLaunch();
     onboarding().onFirstEverAppLaunch();
     wallpaper().onFirstEverAppLaunch();
-    paymentsValues().onFirstEverAppLaunch();
     proxy().onFirstEverAppLaunch();
   }
 
@@ -83,7 +80,7 @@ public final class SignalStore {
     keys.addAll(registrationValues().getKeysToIncludeInBackup());
     keys.addAll(pinValues().getKeysToIncludeInBackup());
     keys.addAll(remoteConfigValues().getKeysToIncludeInBackup());
-    keys.addAll(storageService().getKeysToIncludeInBackup());
+    keys.addAll(storageServiceValues().getKeysToIncludeInBackup());
     keys.addAll(uiHints().getKeysToIncludeInBackup());
     keys.addAll(tooltips().getKeysToIncludeInBackup());
     keys.addAll(misc().getKeysToIncludeInBackup());
@@ -94,7 +91,6 @@ public final class SignalStore {
     keys.addAll(phoneNumberPrivacy().getKeysToIncludeInBackup());
     keys.addAll(onboarding().getKeysToIncludeInBackup());
     keys.addAll(wallpaper().getKeysToIncludeInBackup());
-    keys.addAll(paymentsValues().getKeysToIncludeInBackup());
     keys.addAll(proxy().getKeysToIncludeInBackup());
     return keys;
   }
@@ -124,7 +120,7 @@ public final class SignalStore {
     return INSTANCE.remoteConfigValues;
   }
 
-  public static @NonNull StorageServiceValues storageService() {
+  public static @NonNull StorageServiceValues storageServiceValues() {
     return INSTANCE.storageServiceValues;
   }
 
@@ -166,10 +162,6 @@ public final class SignalStore {
 
   public static @NonNull WallpaperValues wallpaper() {
     return INSTANCE.wallpaperValues;
-  }
-
-  public static @NonNull PaymentsValues paymentsValues() {
-    return INSTANCE.paymentsValues;
   }
 
   public static @NonNull ProxyValues proxy() {

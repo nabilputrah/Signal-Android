@@ -497,10 +497,6 @@
               android:theme="@style/TextSecure.LightTheme"
               android:windowSoftInputMode="stateVisible|adjustResize" />
 
-    <activity android:name=".payments.preferences.PaymentsActivity"
-            android:theme="@style/TextSecure.LightRegistrationTheme"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
-
     <activity android:name=".lock.v2.CreateKbsPinActivity"
             android:theme="@style/TextSecure.LightRegistrationTheme"
             android:windowSoftInputMode="adjustResize"
@@ -716,8 +712,6 @@
 
     <receiver android:name=".service.TrimThreadsByDateManager$TrimThreadsByDateAlarm" />
 
-    <receiver android:name=".payments.backup.phrase.ClearClipboardAlarmReceiver" />
-
     <provider android:name=".providers.PartProvider"
               android:grantUriPermissions="true"
               android:exported="false"
@@ -744,6 +738,10 @@
 
     <provider android:name=".database.DatabaseContentProviders$Conversation"
               android:authorities="${applicationId}.database.conversation"
+              android:exported="false" />
+
+    <provider android:name=".database.DatabaseContentProviders$ConversationList"
+              android:authorities="${applicationId}.database.conversationlist"
               android:exported="false" />
 
     <provider android:name=".database.DatabaseContentProviders$Attachment"

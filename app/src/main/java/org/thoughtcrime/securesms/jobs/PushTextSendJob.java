@@ -74,7 +74,7 @@ public class PushTextSendJob extends PushSendJob {
 
   @Override
   public void onPushSend() throws IOException, NoSuchMessageException, UndeliverableMessageException {
-    ExpiringMessageManager expirationManager = ApplicationDependencies.getExpiringMessageManager();
+    ExpiringMessageManager expirationManager = ApplicationContext.getInstance(context).getExpiringMessageManager();
     MessageDatabase        database          = DatabaseFactory.getSmsDatabase(context);
     SmsMessageRecord       record            = database.getSmsMessage(messageId);
 

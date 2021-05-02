@@ -1,7 +1,8 @@
 package org.thoughtcrime.securesms.util.livedata;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;

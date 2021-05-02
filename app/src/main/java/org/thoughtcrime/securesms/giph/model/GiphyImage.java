@@ -3,16 +3,11 @@ package org.thoughtcrime.securesms.giph.model;
 
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.thoughtcrime.securesms.util.ByteUnit;
-
 public class GiphyImage {
-
-  private static final int MAX_SIZE = (int) ByteUnit.MEGABYTES.toBytes(2);
 
   @JsonProperty
   private ImageTypes images;
@@ -27,16 +22,6 @@ public class GiphyImage {
   public String getGifUrl() {
     ImageData data = getGifData();
     return data != null ? data.url : null;
-  }
-
-  public String getMp4Url() {
-    ImageData data = getMp4Data();
-    return data != null ? data.mp4 : null;
-  }
-
-  public String getMp4PreviewUrl() {
-    ImageData data = getMp4PreviewData();
-    return data != null ? data.mp4 : null;
   }
 
   public long getGifSize() {
@@ -55,7 +40,7 @@ public class GiphyImage {
   }
 
   public float getGifAspectRatio() {
-    return (float)images.downsized_small.width / (float)images.downsized_small.height;
+    return (float)images.downsized.width / (float)images.downsized.height;
   }
 
   public int getGifWidth() {
@@ -78,24 +63,16 @@ public class GiphyImage {
     return data != null ? data.size : 0;
   }
 
-  private @Nullable ImageData getMp4Data() {
-    return getLargestMp4WithinSizeConstraint(images.fixed_width, images.fixed_height, images.fixed_width_small, images.fixed_height_small, images.downsized_small);
-  }
-
-  private @Nullable ImageData getMp4PreviewData() {
-    return images.preview;
-  }
-
   private @Nullable ImageData getGifData() {
-    return getLargestGifWithinSizeConstraint(images.downsized, images.fixed_width, images.fixed_height, images.fixed_width_small, images.fixed_height_small);
+    return getFirstNonEmpty(images.downsized, images.downsized_medium, images.fixed_height, images.fixed_width);
   }
 
   private @Nullable ImageData getGifMmsData() {
-    return getLargestGifWithinSizeConstraint(images.fixed_width_small, images.fixed_height_small);
+    return getFirstNonEmpty(images.fixed_height_downsampled, images.fixed_width_downsampled);
   }
 
   private @Nullable ImageData getStillData() {
-    return getFirstNonEmpty(images.fixed_width_small_still, images.fixed_height_small_still);
+    return getFirstNonEmpty(images.downsized_still, images.fixed_height_still, images.fixed_width_still);
   }
 
   private static @Nullable ImageData getFirstNonEmpty(ImageData... data) {
@@ -108,54 +85,27 @@ public class GiphyImage {
     return null;
   }
 
-  private @Nullable ImageData getLargestGifWithinSizeConstraint(ImageData ... buckets) {
-    return getLargestWithinSizeConstraint(imageData -> imageData.size, buckets);
-  }
-
-  private @Nullable ImageData getLargestMp4WithinSizeConstraint(ImageData ... buckets) {
-    return getLargestWithinSizeConstraint(imageData -> imageData.mp4_size, buckets);
-  }
-
-  private @Nullable ImageData getLargestWithinSizeConstraint(@NonNull SizeFunction sizeFunction, ImageData ... buckets) {
-    ImageData data = null;
-    int       size = 0;
-
-    for (final ImageData bucket : buckets) {
-      if (bucket == null) continue;
-
-      int bucketSize = sizeFunction.getSize(bucket);
-      if (bucketSize <= MAX_SIZE && bucketSize > size) {
-        data = bucket;
-        size = bucketSize;
-      }
-    }
-
-    return data;
-  }
-
-  private interface SizeFunction {
-    int getSize(@NonNull ImageData imageData);
-  }
-
   public static class ImageTypes {
-    @JsonProperty
-    private ImageData downsized;
     @JsonProperty
     private ImageData fixed_height;
     @JsonProperty
-    private ImageData fixed_height_small;
+    private ImageData fixed_height_still;
     @JsonProperty
-    private ImageData fixed_height_small_still;
+    private ImageData fixed_height_downsampled;
     @JsonProperty
     private ImageData fixed_width;
     @JsonProperty
+    private ImageData fixed_width_still;
+    @JsonProperty
+    private ImageData fixed_width_downsampled;
+    @JsonProperty
     private ImageData fixed_width_small;
     @JsonProperty
-    private ImageData fixed_width_small_still;
+    private ImageData downsized_medium;
     @JsonProperty
-    private ImageData downsized_small;
+    private ImageData downsized;
     @JsonProperty
-    private ImageData preview;
+    private ImageData downsized_still;
   }
 
   public static class ImageData {
@@ -176,9 +126,6 @@ public class GiphyImage {
 
     @JsonProperty
     private String webp;
-
-    @JsonProperty
-    private int mp4_size;
   }
 
 }

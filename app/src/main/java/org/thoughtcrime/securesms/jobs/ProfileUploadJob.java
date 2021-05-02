@@ -42,7 +42,6 @@ public final class ProfileUploadJob extends BaseJob {
     }
 
     ProfileUtil.uploadProfile(context);
-    Log.i(TAG, "Profile uploaded.");
   }
 
   @Override

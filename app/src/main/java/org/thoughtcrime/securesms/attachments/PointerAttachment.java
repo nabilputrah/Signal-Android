@@ -30,7 +30,6 @@ public class PointerAttachment extends Attachment {
                             @Nullable String fastPreflightId,
                             boolean voiceNote,
                             boolean borderless,
-                            boolean videoGif,
                             int width,
                             int height,
                             long uploadTimestamp,
@@ -38,17 +37,12 @@ public class PointerAttachment extends Attachment {
                             @Nullable StickerLocator stickerLocator,
                             @Nullable BlurHash blurHash)
   {
-    super(contentType, transferState, size, fileName, cdnNumber, location, key, relay, digest, fastPreflightId, voiceNote, borderless, videoGif, width, height, false, uploadTimestamp, caption, stickerLocator, blurHash, null, null);
+    super(contentType, transferState, size, fileName, cdnNumber, location, key, relay, digest, fastPreflightId, voiceNote, borderless, width, height, false, uploadTimestamp, caption, stickerLocator, blurHash, null, null);
   }
 
   @Nullable
   @Override
   public Uri getUri() {
-    return null;
-  }
-
-  @Override
-  public @Nullable Uri getPublicUri() {
     return null;
   }
 
@@ -112,7 +106,6 @@ public class PointerAttachment extends Attachment {
                                              fastPreflightId,
                                              pointer.get().asPointer().getVoiceNote(),
                                              pointer.get().asPointer().isBorderless(),
-                                             pointer.get().asPointer().isGif(),
                                              pointer.get().asPointer().getWidth(),
                                              pointer.get().asPointer().getHeight(),
                                              pointer.get().asPointer().getUploadTimestamp(),
@@ -135,7 +128,6 @@ public class PointerAttachment extends Attachment {
                                              null,
                                              thumbnail != null ? thumbnail.asPointer().getDigest().orNull() : null,
                                              null,
-                                             false,
                                              false,
                                              false,
                                              thumbnail != null ? thumbnail.asPointer().getWidth() : 0,

@@ -12,6 +12,15 @@
                 android:defaultValue="16">
         </org.thoughtcrime.securesms.preferences.widgets.SignalListPreference>
 
+        <org.thoughtcrime.securesms.preferences.widgets.SignalListPreference
+                android:key="pref_message_body_color_sent"
+                android:title="@string/preferences_chats__message_sent_color"
+                android:entries="@array/pref_message_color_sent_entries"
+                android:entryValues="@array/pref_message_color_sent_values"
+                android:defaultValue="@color/signal_text_primary">
+        </org.thoughtcrime.securesms.preferences.widgets.SignalListPreference>
+
+
         <org.thoughtcrime.securesms.components.SwitchPreferenceCompat
                 android:defaultValue="true"
                 android:key="pref_show_invite_reminder"

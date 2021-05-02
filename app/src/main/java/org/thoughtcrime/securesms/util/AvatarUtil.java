@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.text.TextUtils;
@@ -107,26 +108,18 @@ public final class AvatarUtil {
   @WorkerThread
   public static @NonNull Icon getIconForShortcut(@NonNull Context context, @NonNull Recipient recipient) {
     try {
-      GlideRequest<Bitmap> glideRequest = GlideApp.with(context).asBitmap().load(new ConversationShortcutPhoto(recipient));
-      if (recipient.shouldBlurAvatar()) {
-        glideRequest = glideRequest.transform(new BlurTransformation(context, 0.25f, BlurTransformation.MAX_RADIUS));
-      }
-      return Icon.createWithAdaptiveBitmap(glideRequest.submit().get());
+      return Icon.createWithAdaptiveBitmap(GlideApp.with(context).asBitmap().load(new ConversationShortcutPhoto(recipient)).submit().get());
     } catch (ExecutionException | InterruptedException e) {
-      throw new AssertionError("This call should not fail.", e);
+      throw new AssertionError("This call should not fail.");
     }
   }
 
   @WorkerThread
   public static @NonNull IconCompat getIconCompatForShortcut(@NonNull Context context, @NonNull Recipient recipient) {
     try {
-      GlideRequest<Bitmap> glideRequest = GlideApp.with(context).asBitmap().load(new ConversationShortcutPhoto(recipient));
-      if (recipient.shouldBlurAvatar()) {
-        glideRequest = glideRequest.transform(new BlurTransformation(context, 0.25f, BlurTransformation.MAX_RADIUS));
-      }
-      return IconCompat.createWithAdaptiveBitmap(glideRequest.submit().get());
+      return IconCompat.createWithAdaptiveBitmap(GlideApp.with(context).asBitmap().load(new ConversationShortcutPhoto(recipient)).submit().get());
     } catch (ExecutionException | InterruptedException e) {
-      throw new AssertionError("This call should not fail.", e);
+      throw new AssertionError("This call should not fail.");
     }
   }
 
@@ -159,15 +152,9 @@ public final class AvatarUtil {
       photo = recipient.getContactPhoto();
     }
 
-    final GlideRequest<T> request = glideRequest.load(photo)
-                                                .error(getFallback(context, recipient))
-                                                .diskCacheStrategy(DiskCacheStrategy.ALL);
-
-    if (recipient.shouldBlurAvatar()) {
-      return request.transform(new BlurTransformation(context, 0.25f, BlurTransformation.MAX_RADIUS));
-    } else {
-      return request;
-    }
+    return glideRequest.load(photo)
+                       .error(getFallback(context, recipient))
+                       .diskCacheStrategy(DiskCacheStrategy.ALL);
   }
 
   private static Drawable getFallback(@NonNull Context context, @NonNull Recipient recipient) {

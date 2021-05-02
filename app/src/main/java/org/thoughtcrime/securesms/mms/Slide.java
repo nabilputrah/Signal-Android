@@ -19,7 +19,6 @@ package org.thoughtcrime.securesms.mms;
 import android.content.Context;
 import android.content.res.Resources.Theme;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -54,14 +53,6 @@ public abstract class Slide {
   @Nullable
   public Uri getUri() {
     return attachment.getUri();
-  }
-
-  public @Nullable Uri getPublicUri() {
-    if (Build.VERSION.SDK_INT >= 28) {
-      return attachment.getPublicUri();
-    } else {
-      return attachment.getUri();
-    }
   }
 
   @NonNull
@@ -118,10 +109,6 @@ public abstract class Slide {
     return false;
   }
 
-  public boolean isVideoGif() {
-    return hasVideo() && attachment.isVideoGif();
-  }
-
   public @NonNull String getContentDescription() { return ""; }
 
   public @NonNull Attachment asAttachment() {
@@ -171,10 +158,9 @@ public abstract class Slide {
                                                          @Nullable AudioHash      audioHash,
                                                                    boolean        voiceNote,
                                                                    boolean        borderless,
-                                                                   boolean        gif,
                                                                    boolean        quote)
   {
-    return constructAttachmentFromUri(context, uri, defaultMime, size, width, height, hasThumbnail, fileName, caption, stickerLocator, blurHash, audioHash, voiceNote, borderless, gif, quote, null);
+    return constructAttachmentFromUri(context, uri, defaultMime, size, width, height, hasThumbnail, fileName, caption, stickerLocator, blurHash, audioHash, voiceNote, borderless, quote, null);
   }
 
   protected static Attachment constructAttachmentFromUri(@NonNull  Context        context,
@@ -191,7 +177,6 @@ public abstract class Slide {
                                                          @Nullable AudioHash      audioHash,
                                                                    boolean        voiceNote,
                                                                    boolean        borderless,
-                                                                   boolean        gif,
                                                                    boolean        quote,
                                                          @Nullable AttachmentDatabase.TransformProperties transformProperties)
   {
@@ -207,7 +192,6 @@ public abstract class Slide {
                              fastPreflightId,
                              voiceNote,
                              borderless,
-                             gif,
                              quote,
                              caption,
                              stickerLocator,
